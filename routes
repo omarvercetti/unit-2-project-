@@ -1,0 +1,112 @@
+const express = require('express');
+const router = express.Router();
+const Player = require('../models/player');
+const ensureLoggedIn = require('../middleware/ensureLoggedIn');
+
+// Create a new player (Authenticated users only)
+router.post('/players', ensureLoggedIn, async (req, res) => {
+  try {
+    const { name, team, jerseyNumber, position } = req.body;
+    const createdBy = req.user._id;
+
+    const newPlayer = await Player.create({ name, team, jerseyNumber, position, createdBy });
+
+    res.status(201).json(newPlayer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get all players
+router.get('/players', async (req, res) => {
+  try {
+    const players = await Player.find().populate('createdBy', 'username');
+    res.json(players);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get a specific player
+router.get('/players/:id', async (req, res) => {
+  try {
+    const player = await Player.findById(req.params.id).populate('createdBy', 'username');
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    res.json(player);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update a player (Authenticated users only)
+router.put('/players/:id', ensureLoggedIn, async (req, res) => {
+  try {
+    const updatedPlayer = await Player.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user._id },
+      { $set: req.body },
+      { new: true }
+    );
+
+    if (!updatedPlayer) {
+      return res.status(404).json({ error: 'Player not found or user not authorized' });
+    }
+
+    res.json(updatedPlayer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete a player (Authenticated users only)
+router.delete('/players/:id', ensureLoggedIn, async (req, res) => {
+  try {
+    const deletedPlayer = await Player.findOneAndRemove({
+      _id: req.params.id,
+      createdBy: req.user._id,
+    });
+
+    if (!deletedPlayer) {
+      return res.status(404).json({ error: 'Player not found or user not authorized' });
+    }
+
+    res.json(deletedPlayer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;
+// Update a comment (Authenticated users only)
+router.put('/comments/:id', ensureLoggedIn, async (req, res) => {
+    try {
+      const comment = await Comment.findById(req.params.id);
+  
+      if (!comment) {
+        return res.status(404).json({ error: 'Comment not found' });
+      }
+  
+      // Check if the user has permission to update this comment
+      if (comment.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ error: 'User not authorized to update this comment' });
+      }
+  
+      const updatedComment = await Comment.findByIdAndUpdate(
+        req.params.id,
+        { $set: req.body },
+        { new: true }
+      );
+  
+      res.json(updatedComment);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });

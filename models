@@ -1,0 +1,23 @@
+// models/player.js
+
+const mongoose = require('mongoose');
+
+const playerSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  team: { type: String, required: true },
+  jerseyNumber: { type: Number, required: true },
+  position: { type: String, required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+});
+
+module.exports = mongoose.model('Player', playerSchema);// models/comment.js
+
+const mongoose = require('mongoose');
+
+const commentSchema = new mongoose.Schema({
+  text: { type: String, required: true },
+  player: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+});
+
+module.exports = mongoose.model('Comment', commentSchema);
