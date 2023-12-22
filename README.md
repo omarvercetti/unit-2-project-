@@ -14,6 +14,7 @@ As a user, I want to find players based on specific criteria such as teams, nati
 
 Technologies used: -Node.js -Express.js -MongoDB
 
+https://github.com/omarvercetti/unit-2-project-/blob/main/Screenshot%202023-12-21%20at%207.21.42%20PM.png?raw=true![image](https://github.com/omarvercetti/unit-2-project-/assets/150702846/e2bef737-2683-4424-9515-888473ac654e)
 
 
 
